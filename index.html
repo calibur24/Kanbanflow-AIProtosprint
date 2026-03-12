@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colorful KanbanFlow</title>
+    <title>KanbanFlow Pro</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Modern CSS Variables */
         :root {
             --bg-color: #f4f7fc;
             --text-main: #2d3748;
@@ -18,118 +17,58 @@
             --todo-color: #3b82f6; 
             --in-progress-color: #f59e0b; 
             --done-color: #10b981; 
+            --danger-color: #ef4444;
         }
 
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-main);
-            padding: 30px; 
-            margin: 0;
-        }
-
-        /* --- Header & Board Selector CSS --- */
-        .header-container {
-            display: flex; justify-content: space-between; align-items: center;
-            max-width: 1200px; margin: 0 auto 20px auto;
-        }
-
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 30px; margin: 0; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 20px auto; }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .header-right { display: flex; gap: 10px; }
-
         h1 { font-weight: 700; color: #1a202c; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
 
-        .board-selector {
-            padding: 8px 15px; border-radius: 8px; border: 1px solid #cbd5e1;
-            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem;
-            color: var(--text-main); background: white; cursor: pointer; outline: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
+        .board-selector { padding: 8px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; background: white; }
+        .btn-primary { background-color: var(--todo-color); color: white; border: none; padding: 10px 20px; font-weight: 600; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); transition: 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); background-color: #2563eb; }
+        .btn-secondary { background-color: white; border: 1px solid #cbd5e1; padding: 10px 20px; font-weight: 600; border-radius: 8px; cursor: pointer; }
 
-        .btn-primary {
-            background-color: var(--todo-color); color: white; border: none; padding: 10px 20px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; border-radius: 8px; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); transition: transform 0.2s, background-color 0.2s;
-        }
-        .btn-primary:hover { background-color: #2563eb; transform: translateY(-2px); }
-
-        .btn-secondary {
-            background-color: white; color: var(--text-main); border: 1px solid #cbd5e1; padding: 10px 20px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; border-radius: 8px; cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background-color 0.2s;
-        }
-        .btn-secondary:hover { background-color: #f1f5f9; }
-
-        #loading { text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 20px;}
-
-        /* --- Summary Board CSS --- */
         .summary-board { display: flex; justify-content: center; gap: 20px; max-width: 1200px; margin: 0 auto 30px auto; }
-        .summary-card {
-            background: white; padding: 15px 25px; border-radius: 10px; flex: 1; max-width: 250px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid transparent;
-        }
-        .summary-card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
-        .summary-card p { margin: 0; font-size: 2rem; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .summary-card { background: white; padding: 15px 25px; border-radius: 10px; flex: 1; max-width: 250px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid transparent; }
         .summary-todo { border-top-color: var(--todo-color); }
         .summary-progress { border-top-color: var(--in-progress-color); }
         .summary-done { border-top-color: var(--done-color); }
+        .summary-card p { margin: 0; font-size: 2rem; font-weight: 700; }
 
-        /* --- Board CSS --- */
         .board { display: flex; gap: 25px; max-width: 1200px; margin: 0 auto; }
-        .column {
-            flex: 1; background: #ffffff; padding: 20px; border-radius: 12px; min-height: 500px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; border-top: 5px solid transparent;
-        }
+        .column { flex: 1; background: #ffffff; padding: 20px; border-radius: 12px; min-height: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid transparent; }
         #col-To-Do { border-top-color: var(--todo-color); background-color: #eff6ff; }
         #col-In-Progress { border-top-color: var(--in-progress-color); background-color: #fffbeb; }
         #col-Done { border-top-color: var(--done-color); background-color: #ecfdf5; }
 
-        .column h2 { margin-top: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-main); padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
-        .task-list { flex: 1; min-height: 100px; margin-top: 15px; }
-
-        .task-card {
-            background: #ffffff; padding: 18px; margin-bottom: 15px; border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08); cursor: grab; transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid #edf2f7;
-        }
+        .task-card { background: #ffffff; padding: 18px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); cursor: grab; position: relative; border: 1px solid #edf2f7; transition: 0.2s; }
         .task-card:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        .task-card:active { cursor: grabbing; transform: translateY(0); }
-
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .priority-tag { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-        .priority-high { background-color: #fee2e2; color: #ef4444; }
-        .priority-medium { background-color: #fef3c7; color: #d97706; }
-        .priority-low { background-color: #e0e7ff; color: #4f46e5; }
-        .due-date-badge { font-size: 0.75rem; color: #64748b; font-weight: 500; display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; }
-
-        .task-title { margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 600; }
-        .task-desc { font-size: 0.85rem; color: var(--text-light); margin-bottom: 15px; line-height: 1.5; }
-        .task-desc p { margin: 0; }
-        .task-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #edf2f7; padding-top: 12px; }
-        .assignee { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 500; color: var(--text-light); }
-        .avatar { width: 26px; height: 26px; border-radius: 50%; background-color: var(--todo-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; }
-
-        /* --- Modal CSS --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal { background: white; padding: 30px; border-radius: 12px; width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .modal h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .form-row { display: flex; gap: 15px; }
-        .form-row .form-group { flex: 1; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: white; border: 1px solid #cbd5e1; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-cancel:hover { background: #f1f5f9; }
         
-        /* Team Member List inside Modal */
-        .team-list { list-style: none; padding: 0; margin: 0 0 15px 0; max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; }
-        .team-list li { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
-        .team-list li:last-child { border-bottom: none; }
-        .team-list-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--text-light); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        .action-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .action-btn:hover { color: var(--todo-color); }
+        .delete-btn:hover { color: var(--danger-color); }
 
+        .priority-tag { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; margin-right: 50px; }
+        .priority-high { background: #fee2e2; color: #ef4444; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-low { background: #e0e7ff; color: #4f46e5; }
+
+        .task-title { margin: 10px 0 5px 0; font-size: 1rem; font-weight: 600; }
+        .task-desc { font-size: 0.85rem; color: var(--text-light); margin-bottom: 12px; }
+        .task-footer { display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #eee; padding-top: 10px; }
+        
+        .assignee-label { font-size: 0.75rem; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
+        .due-date-label { font-size: 0.7rem; color: var(--text-light); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal { background: white; padding: 25px; border-radius: 12px; width: 350px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -137,71 +76,48 @@
     <div class="header-container">
         <div class="header-left">
             <h1>🚀 KanbanFlow</h1>
-            <select id="boardSelector" class="board-selector" onchange="changeBoard()">
-                <option>Loading Boards...</option>
-            </select>
+            <select id="boardSelector" class="board-selector" onchange="changeBoard()"></select>
         </div>
         <div class="header-right">
-            <button class="btn-secondary" onclick="openTeamModal()">👥 Manage Team</button>
-            <button class="btn-primary" onclick="openModal()">+ Add Task</button>
+            <button class="btn-secondary" onclick="openTeamModal()">👥 Team</button>
+            <button class="btn-primary" onclick="openModal()">+ Task</button>
         </div>
     </div>
 
-    <div class="summary-board" id="summaryBoard" style="display: none;">
+    <div class="summary-board" id="summaryBoard">
         <div class="summary-card summary-todo"><h3>Pending</h3><p id="count-todo">0</p></div>
         <div class="summary-card summary-progress"><h3>In Progress</h3><p id="count-progress">0</p></div>
         <div class="summary-card summary-done"><h3>Completed</h3><p id="count-done">0</p></div>
     </div>
 
-    <div id="loading">Connecting to database...</div>
+    <div id="loading" style="text-align:center;">Syncing...</div>
     
     <div class="board" id="board" style="display: none;">
-        <div class="column" id="col-To-Do" ondragover="allowDrop(event)" ondrop="drop(event, 'To-Do')">
-            <h2>To-Do 📌</h2>
-            <div class="task-list" id="tasks-To-Do"></div>
-        </div>
-        <div class="column" id="col-In-Progress" ondragover="allowDrop(event)" ondrop="drop(event, 'In Progress')">
-            <h2>In Progress ⏳</h2>
-            <div class="task-list" id="tasks-In Progress"></div>
-        </div>
-        <div class="column" id="col-Done" ondragover="allowDrop(event)" ondrop="drop(event, 'Done')">
-            <h2>Done ✅</h2>
-            <div class="task-list" id="tasks-Done"></div>
-        </div>
+        <div class="column" id="col-To-Do" ondragover="allowDrop(event)" ondrop="drop(event, 'To-Do')"><h2>To-Do</h2><div class="task-list" id="tasks-To-Do"></div></div>
+        <div class="column" id="col-In-Progress" ondragover="allowDrop(event)" ondrop="drop(event, 'In Progress')"><h2>In Progress</h2><div class="task-list" id="tasks-In Progress"></div></div>
+        <div class="column" id="col-Done" ondragover="allowDrop(event)" ondrop="drop(event, 'Done')"><h2>Done</h2><div class="task-list" id="tasks-Done"></div></div>
     </div>
 
     <div class="modal-overlay" id="taskModal">
         <div class="modal">
-            <h2>Create New Task</h2>
-            <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" placeholder="e.g., Fix Navigation Bar"></div>
-            <div class="form-group"><label>Description (Markdown)</label><textarea id="taskDesc" placeholder="e.g., **Bold text** or lists..."></textarea></div>
-            <div class="form-row">
-                <div class="form-group"><label>Priority</label><select id="taskPriority"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select></div>
-                <div class="form-group"><label>Due Date</label><input type="date" id="taskDueDate"></div>
-            </div>
-            <div class="form-group"><label>Assign To</label><select id="taskAssignee"></select></div>
-            <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-primary" onclick="saveTask()">Save Task</button></div>
+            <h2 id="modalTitle">New Task</h2>
+            <input type="hidden" id="editTaskId">
+            <div class="form-group"><label>Title</label><input type="text" id="taskTitle"></div>
+            <div class="form-group"><label>Description</label><textarea id="taskDesc"></textarea></div>
+            <div class="form-group"><label>Priority</label><select id="taskPriority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+            <div class="form-group"><label>Due Date</label><input type="date" id="taskDueDate"></div>
+            <div class="form-group"><label>Assignee</label><select id="taskAssignee"></select></div>
+            <div style="text-align:right;"><button class="btn-secondary" onclick="closeModal()">Cancel</button> <button class="btn-primary" onclick="saveTask()">Save</button></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="teamModal">
         <div class="modal">
-            <h2>Manage Team Members</h2>
-            <div class="form-group">
-                <label>Current Roster</label>
-                <ul class="team-list" id="teamListUI">
-                    </ul>
-            </div>
-            <div class="form-group">
-                <label>Add New Member</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="newMemberName" placeholder="e.g., Eve Marketing" style="flex: 1;">
-                    <button class="btn-primary" onclick="addTeamMember()">Add</button>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeTeamModal()">Done</button>
-            </div>
+            <h2>Team Roster</h2>
+            <div id="teamListUI" style="margin-bottom:15px; max-height:100px; overflow:auto; border:1px solid #eee; padding:5px;"></div>
+            <div class="form-group"><label>New Member</label><input type="text" id="newMemberName"></div>
+            <button class="btn-primary" style="width:100%;" onclick="addTeamMember()">Add Member</button>
+            <button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="closeTeamModal()">Close</button>
         </div>
     </div>
 
@@ -209,172 +125,119 @@
         const SUPABASE_URL = 'https://lzzheaafvhnjbqqqtjds.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6emhlYWFmdmhuamJxcXF0amRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjY4ODQsImV4cCI6MjA4ODkwMjg4NH0.t9h-uExZWGb01wFBcHAjuvfG75ieDj7Lnc5Ztjd9UYk';
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let currentBoardId = null;
+        let allTasks = [];
 
-        async function init() {
-            await loadTeamMembers();
-            await loadBoards(); 
-        }
+        async function init() { await loadTeamMembers(); await loadBoards(); }
 
         async function loadBoards() {
-            const { data, error } = await db.from('boards').select('*').order('id', { ascending: true });
-            if (error) return;
-
-            const selector = document.getElementById('boardSelector');
-            selector.innerHTML = ''; 
-            data.forEach(board => { selector.innerHTML += `<option value="${board.id}">${board.title}</option>`; });
-
-            if (data.length > 0) {
-                currentBoardId = data[0].id;
-                await fetchTasks();
-            }
-        }
-
-        function changeBoard() {
-            currentBoardId = document.getElementById('boardSelector').value;
-            document.getElementById('board').style.display = 'none';
-            document.getElementById('summaryBoard').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            fetchTasks();
+            const { data } = await db.from('boards').select('*').order('id', { ascending: true });
+            document.getElementById('boardSelector').innerHTML = data.map(b => `<option value="${b.id}">${b.title}</option>`).join('');
+            if (data.length > 0) { currentBoardId = data[0].id; fetchTasks(); }
         }
 
         async function fetchTasks() {
-            if (!currentBoardId) return;
-            const { data, error } = await db.from('tasks')
-                .select('*, team_members(name)').eq('board_id', currentBoardId).order('id', { ascending: true });
-                
-            if (error) { document.getElementById('loading').innerText = "Error loading tasks."; return; }
+            const { data } = await db.from('tasks').select('*, team_members(name)').eq('board_id', currentBoardId).order('id', { ascending: true });
+            allTasks = data;
             renderBoard(data);
         }
 
         function renderBoard(tasks) {
-            document.getElementById('tasks-To-Do').innerHTML = '';
-            document.getElementById('tasks-In Progress').innerHTML = '';
-            document.getElementById('tasks-Done').innerHTML = '';
+            ['To-Do', 'In Progress', 'Done'].forEach(s => document.getElementById(`tasks-${s}`).innerHTML = '');
+            let counts = { 'To-Do': 0, 'In Progress': 0, 'Done': 0 };
 
-            let countTodo = 0, countProgress = 0, countDone = 0;
-
-            tasks.forEach(task => {
-                if (task.status === 'To-Do') countTodo++;
-                if (task.status === 'In Progress') countProgress++;
-                if (task.status === 'Done') countDone++;
-
-                const htmlDescription = marked.parse(task.description || '');
-                const assigneeName = task.team_members ? task.team_members.name : 'Unassigned';
-                const firstLetter = assigneeName !== 'Unassigned' ? assigneeName.charAt(0).toUpperCase() : '?';
-                const priorityClass = task.priority ? task.priority.toLowerCase() : 'medium';
-
-                let dueDateHtml = '';
-                if (task.due_date) {
-                    const dateObj = new Date(task.due_date);
-                    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-                    dueDateHtml = `<span class="due-date-badge">📅 ${formattedDate}</span>`;
-                }
-
+            tasks.forEach(t => {
+                counts[t.status]++;
                 const card = document.createElement('div');
-                card.className = 'task-card'; card.id = `task-${task.id}`; card.draggable = true; card.ondragstart = drag;
+                card.className = 'task-card'; card.id = `task-${t.id}`; card.draggable = true; card.ondragstart = (e) => e.dataTransfer.setData("text", card.id);
+                
+                const assigneeName = t.team_members ? t.team_members.name : 'Unassigned';
 
                 card.innerHTML = `
-                    <div class="task-header"><span class="priority-tag priority-${priorityClass}">${task.priority || 'Medium'}</span>${dueDateHtml}</div>
-                    <h3 class="task-title">${task.title}</h3>
-                    <div class="task-desc">${htmlDescription}</div>
-                    <div class="task-footer"><div class="assignee"><div class="avatar">${firstLetter}</div><span>${assigneeName}</span></div></div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="openEditModal(${t.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteTask(${t.id})">×</button>
+                    </div>
+                    <span class="priority-tag priority-${t.priority.toLowerCase()}">${t.priority}</span>
+                    <h3 class="task-title">${t.title}</h3>
+                    <div class="task-desc">${marked.parse(t.description || '')}</div>
+                    <div class="task-footer">
+                        <div class="assignee-label">👤 ${assigneeName}</div>
+                        <div class="due-date-label">📅 Due: ${t.due_date || 'N/A'}</div>
+                    </div>
                 `;
-
-                const column = document.getElementById(`tasks-${task.status}`);
-                if (column) column.appendChild(card);
+                document.getElementById(`tasks-${t.status}`).appendChild(card);
             });
 
-            document.getElementById('count-todo').innerText = countTodo;
-            document.getElementById('count-progress').innerText = countProgress;
-            document.getElementById('count-done').innerText = countDone;
-
+            document.getElementById('count-todo').innerText = counts['To-Do'];
+            document.getElementById('count-progress').innerText = counts['In Progress'];
+            document.getElementById('count-done').innerText = counts['Done'];
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('summaryBoard').style.display = 'flex'; 
             document.getElementById('board').style.display = 'flex';
         }
 
-        function drag(event) { event.dataTransfer.setData("text", event.target.closest('.task-card').id); }
-        function allowDrop(event) { event.preventDefault(); }
-        async function drop(event, newStatus) {
-            event.preventDefault();
-            const cardId = event.dataTransfer.getData("text");
-            if (!cardId) return;
-            const taskId = cardId.replace('task-', ''); 
-            document.getElementById(`tasks-${newStatus}`).appendChild(document.getElementById(cardId));
-            await db.from('tasks').update({ status: newStatus }).eq('id', taskId);
-            fetchTasks(); 
+        function openModal() {
+            document.getElementById('modalTitle').innerText = "New Task";
+            document.getElementById('editTaskId').value = "";
+            document.getElementById('taskTitle').value = "";
+            document.getElementById('taskDesc').value = "";
+            document.getElementById('taskModal').style.display = 'flex';
         }
 
-        // --- Task Modal Functions ---
-        function openModal() { document.getElementById('taskModal').style.display = 'flex'; }
-        function closeModal() {
-            document.getElementById('taskModal').style.display = 'none';
-            document.getElementById('taskTitle').value = ''; document.getElementById('taskDesc').value = '';
-            document.getElementById('taskPriority').value = 'Medium'; document.getElementById('taskDueDate').value = ''; 
-            document.getElementById('taskAssignee').value = '';
+        function openEditModal(id) {
+            const task = allTasks.find(t => t.id === id);
+            document.getElementById('modalTitle').innerText = "Edit Task";
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDesc').value = task.description;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskDueDate').value = task.due_date || "";
+            document.getElementById('taskAssignee').value = task.assignee_id || "";
+            document.getElementById('taskModal').style.display = 'flex';
         }
 
         async function saveTask() {
-            const title = document.getElementById('taskTitle').value; const desc = document.getElementById('taskDesc').value;
-            const priority = document.getElementById('taskPriority').value; const dueDate = document.getElementById('taskDueDate').value;
-            const assigneeId = document.getElementById('taskAssignee').value;
+            const id = document.getElementById('editTaskId').value;
+            const taskData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDesc').value,
+                priority: document.getElementById('taskPriority').value,
+                due_date: document.getElementById('taskDueDate').value || null,
+                assignee_id: document.getElementById('taskAssignee').value || null,
+                board_id: currentBoardId
+            };
 
-            if (!title.trim()) { alert("Please enter a task title!"); return; }
-
-            const saveBtn = document.querySelector('#taskModal .btn-primary'); saveBtn.innerText = "Saving...";
-
-            const { error } = await db.from('tasks').insert([{
-                title: title, description: desc, priority: priority, due_date: dueDate ? dueDate : null, 
-                status: 'To-Do', board_id: currentBoardId, assignee_id: assigneeId ? parseInt(assigneeId) : null
-            }]);
-
-            saveBtn.innerText = "Save Task";
-            if (error) { console.error(error); alert("Failed to save."); } else { closeModal(); fetchTasks(); }
+            if (id) { await db.from('tasks').update(taskData).eq('id', id); } 
+            else { await db.from('tasks').insert([{...taskData, status: 'To-Do'}]); }
+            closeModal(); fetchTasks();
         }
 
-        // --- NEW: Team Management Functions ---
-        async function loadTeamMembers() {
-            const { data, error } = await db.from('team_members').select('*').order('id', { ascending: true });
-            if (error) return;
-            
-            // 1. Update the Assignee Dropdown in the Add Task form
-            const select = document.getElementById('taskAssignee');
-            select.innerHTML = '<option value="">Unassigned</option>'; 
-            data.forEach(member => { select.innerHTML += `<option value="${member.id}">${member.name}</option>`; });
-
-            // 2. Update the visual list inside the "Manage Team" modal
-            const teamListUI = document.getElementById('teamListUI');
-            teamListUI.innerHTML = '';
-            data.forEach(member => {
-                const firstLetter = member.name.charAt(0).toUpperCase();
-                teamListUI.innerHTML += `
-                    <li>
-                        <div class="team-list-avatar">${firstLetter}</div>
-                        ${member.name}
-                    </li>
-                `;
-            });
+        async function deleteTask(id) {
+            if (confirm("Delete permanently?")) { await db.from('tasks').delete().eq('id', id); fetchTasks(); }
         }
 
+        async function drop(e, status) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData("text").replace('task-', '');
+            await db.from('tasks').update({ status }).eq('id', id);
+            fetchTasks();
+        }
+
+        function allowDrop(e) { e.preventDefault(); }
+        function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
         function openTeamModal() { document.getElementById('teamModal').style.display = 'flex'; }
         function closeTeamModal() { document.getElementById('teamModal').style.display = 'none'; }
+        function changeBoard() { currentBoardId = document.getElementById('boardSelector').value; fetchTasks(); }
+
+        async function loadTeamMembers() {
+            const { data } = await db.from('team_members').select('*');
+            document.getElementById('taskAssignee').innerHTML = '<option value="">Unassigned</option>' + data.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            document.getElementById('teamListUI').innerHTML = data.map(m => `<div>👤 ${m.name}</div>`).join('');
+        }
 
         async function addTeamMember() {
-            const nameInput = document.getElementById('newMemberName');
-            const name = nameInput.value.trim();
-            if (!name) return;
-
-            // Instantly push the new user to Supabase
-            const { error } = await db.from('team_members').insert([{ name }]);
-            if (error) {
-                alert("Failed to add member.");
-                console.error(error);
-            } else {
-                nameInput.value = ''; // Clear input
-                await loadTeamMembers(); // Refresh the lists!
-            }
+            const name = document.getElementById('newMemberName').value;
+            if (name) { await db.from('team_members').insert([{ name }]); document.getElementById('newMemberName').value = ''; loadTeamMembers(); }
         }
 
         init();

@@ -1,4 +1,4 @@
-# 🚀 KanbanFlow - AI Protosprint Base App (Track 3)
+# 🚀 KanbanFlow - AI Protosprint Base App 
 
 A fully functional, high-performance Kanban project management board built as a robust foundation for AI agent integration.
 
@@ -14,7 +14,7 @@ This application is built with a **Serverless Vanilla Architecture** to ensure z
 
 ---
 
-## 🌟 Core Features (Track 3 Requirements)
+## 🌟 Core Features 
 
 - **[x] Multi-Board System:** Dynamic dropdown to switch between distinct workspaces (e.g., Website Redesign vs. Marketing).
 - **[x] Real-time Metrics:** An integrated Activity Board tracking Pending, In-Progress, and Completed tasks.
@@ -33,4 +33,4 @@ This application is built with a **Serverless Vanilla Architecture** to ensure z
 ### Installation Steps
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+   git clone https://github.com/calibur24/Kanbanflow-AIProtosprint.git

@@ -22,7 +22,6 @@
 
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; margin: 0; }
         
-        /* Layout & Header */
         .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto 20px auto; flex-wrap: wrap; gap: 15px; }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .header-right { display: flex; gap: 10px; }
@@ -30,13 +29,13 @@
 
         .board-selector { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; background: white; outline: none; }
         
-        /* Buttons */
         .btn-primary { background-color: var(--todo-color); color: white; border: none; padding: 10px 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); }
         .btn-primary:hover { transform: translateY(-2px); background-color: #2563eb; }
         .btn-secondary { background-color: white; border: 1px solid #cbd5e1; padding: 10px 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .btn-secondary:hover { background-color: #f8fafc; }
+        .btn-danger { color: var(--danger-color); border-color: var(--danger-color); }
+        .btn-danger:hover { background-color: #fee2e2; }
 
-        /* Metrics Board */
         .summary-board { display: flex; justify-content: center; gap: 20px; max-width: 1400px; margin: 0 auto 30px auto; }
         .summary-card { background: white; padding: 15px; border-radius: 12px; flex: 1; max-width: 200px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 5px solid transparent; }
         .summary-todo { border-top-color: var(--todo-color); }
@@ -45,13 +44,11 @@
         .summary-card h3 { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; margin: 0; }
         .summary-card p { margin: 5px 0 0 0; font-size: 1.8rem; font-weight: 700; }
 
-        /* Kanban Board */
         .board { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; overflow-x: auto; padding-bottom: 20px; }
         .column { flex: 1; min-width: 300px; background: #ebedf0; padding: 15px; border-radius: 12px; min-height: 70vh; display: flex; flex-direction: column; }
         .column h2 { font-size: 1rem; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #ddd; color: #444; }
         .task-list { flex: 1; margin-top: 15px; }
 
-        /* Task Cards */
         .task-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: grab; position: relative; border: 1px solid transparent; transition: 0.2s; }
         .task-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-color: #cbd5e1; }
         
@@ -70,7 +67,6 @@
         .task-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 0.75rem; }
         .assignee-info { font-weight: 500; color: #4a5568; }
 
-        /* Modals */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; }
         .modal { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
@@ -84,7 +80,8 @@
         <div class="header-left">
             <h1>🚀 KanbanFlow</h1>
             <select id="boardSelector" class="board-selector" onchange="changeBoard()"></select>
-            <button class="btn-secondary" onclick="createNewBoard()">+ New Workspace</button>
+            <button class="btn-secondary" onclick="createNewBoard()">+ New Board</button>
+            <button class="btn-secondary btn-danger" onclick="deleteCurrentBoard()">🗑️ Delete Workspace</button>
         </div>
         <div class="header-right">
             <button class="btn-secondary" onclick="openTeamModal()">👥 Manage Team</button>
@@ -101,26 +98,17 @@
     <div id="loading" style="text-align:center; color: var(--text-light);">Establishing Database Connection...</div>
     
     <div class="board" id="board" style="display: none;">
-        <div class="column" id="col-To-Do" ondragover="allowDrop(event)" ondrop="drop(event, 'To-Do')">
-            <h2>To-Do 📌</h2>
-            <div class="task-list" id="tasks-To-Do"></div>
-        </div>
-        <div class="column" id="col-In-Progress" ondragover="allowDrop(event)" ondrop="drop(event, 'In Progress')">
-            <h2>In Progress ⏳</h2>
-            <div class="task-list" id="tasks-In Progress"></div>
-        </div>
-        <div class="column" id="col-Done" ondragover="allowDrop(event)" ondrop="drop(event, 'Done')">
-            <h2>Completed ✅</h2>
-            <div class="task-list" id="tasks-Done"></div>
-        </div>
+        <div class="column" id="col-To-Do" ondragover="allowDrop(event)" ondrop="drop(event, 'To-Do')"><h2>To-Do 📌</h2><div class="task-list" id="tasks-To-Do"></div></div>
+        <div class="column" id="col-In-Progress" ondragover="allowDrop(event)" ondrop="drop(event, 'In Progress')"><h2>In Progress ⏳</h2><div class="task-list" id="tasks-In Progress"></div></div>
+        <div class="column" id="col-Done" ondragover="allowDrop(event)" ondrop="drop(event, 'Done')"><h2>Completed ✅</h2><div class="task-list" id="tasks-Done"></div></div>
     </div>
 
     <div class="modal-overlay" id="taskModal">
         <div class="modal">
             <h2 id="modalTitle" style="margin-top:0;">New Task</h2>
             <input type="hidden" id="editTaskId">
-            <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" placeholder="What needs to be done?"></div>
-            <div class="form-group"><label>Description (Markdown supported)</label><textarea id="taskDesc" rows="3"></textarea></div>
+            <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle"></div>
+            <div class="form-group"><label>Description</label><textarea id="taskDesc" rows="3"></textarea></div>
             <div class="form-group"><label>Priority</label><select id="taskPriority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
             <div class="form-group"><label>Due Date</label><input type="date" id="taskDueDate"></div>
             <div class="form-group"><label>Assignee</label><select id="taskAssignee"></select></div>
@@ -135,14 +123,13 @@
         <div class="modal">
             <h2 style="margin-top:0;">Team Roster</h2>
             <div id="teamListUI" style="margin-bottom:20px; max-height:150px; overflow-y:auto; border:1px solid #edf2f7; padding:10px; border-radius:8px; background:#f8fafc;"></div>
-            <div class="form-group"><label>Add New Member</label><input type="text" id="newMemberName" placeholder="Enter name..."></div>
+            <div class="form-group"><label>Add Member</label><input type="text" id="newMemberName"></div>
             <button class="btn-primary" style="width:100%;" onclick="addTeamMember()">Add to Team</button>
             <button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="closeTeamModal()">Close</button>
         </div>
     </div>
 
     <script>
-        // Supabase Configuration
         const SUPABASE_URL = 'https://lzzheaafvhnjbqqqtjds.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6emhlYWFmdmhuamJxcXF0amRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjY4ODQsImV4cCI6MjA4ODkwMjg4NH0.t9h-uExZWGb01wFBcHAjuvfG75ieDj7Lnc5Ztjd9UYk';
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -150,51 +137,52 @@
         let currentBoardId = null;
         let allTasks = [];
 
-        // Initialization
-        async function init() { 
-            await loadTeamMembers(); 
-            await loadBoards(); 
-        }
+        async function init() { await loadTeamMembers(); await loadBoards(); }
 
-        // --- Workspace/Board Management ---
+        // --- Board Logic ---
         async function loadBoards() {
-            const { data, error } = await db.from('boards').select('*').order('id', { ascending: true });
-            if (error) return;
+            const { data } = await db.from('boards').select('*').order('id', { ascending: true });
             const selector = document.getElementById('boardSelector');
             selector.innerHTML = data.map(b => `<option value="${b.id}">${b.title}</option>`).join('');
-            if (data.length > 0 && !currentBoardId) {
-                currentBoardId = data[0].id;
+            if (data.length > 0) {
+                if (!currentBoardId || !data.find(b => b.id == currentBoardId)) {
+                    currentBoardId = data[0].id;
+                }
+                document.getElementById('boardSelector').value = currentBoardId;
                 fetchTasks();
+            } else {
+                document.getElementById('board').style.display = 'none';
+                document.getElementById('loading').innerText = "No workspaces found. Create one!";
             }
         }
 
         async function createNewBoard() {
-            const title = prompt("Enter new Workspace name:");
-            if (!title || !title.trim()) return;
-            const { data, error } = await db.from('boards').insert([{ title: title.trim() }]).select();
-            if (!error) {
+            const title = prompt("New Workspace Name:");
+            if (!title) return;
+            const { data } = await db.from('boards').insert([{ title: title.trim() }]).select();
+            currentBoardId = data[0].id;
+            await loadBoards();
+        }
+
+        async function deleteCurrentBoard() {
+            if (!currentBoardId) return;
+            const title = document.getElementById('boardSelector').options[document.getElementById('boardSelector').selectedIndex].text;
+            if (confirm(`Delete entire workspace "${title}" and all its tasks?`)) {
+                await db.from('tasks').delete().eq('board_id', currentBoardId);
+                await db.from('boards').delete().eq('id', currentBoardId);
+                currentBoardId = null;
                 await loadBoards();
-                currentBoardId = data[0].id;
-                document.getElementById('boardSelector').value = currentBoardId;
-                fetchTasks();
             }
         }
 
         function changeBoard() {
             currentBoardId = document.getElementById('boardSelector').value;
-            document.getElementById('board').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
             fetchTasks();
         }
 
-        // --- Task Management ---
+        // --- Task Logic ---
         async function fetchTasks() {
-            const { data, error } = await db.from('tasks')
-                .select('*, team_members(name)')
-                .eq('board_id', currentBoardId)
-                .order('id', { ascending: true });
-            
-            if (error) { document.getElementById('loading').innerText = "Sync Error."; return; }
+            const { data } = await db.from('tasks').select('*, team_members(name)').eq('board_id', currentBoardId).order('id', { ascending: true });
             allTasks = data;
             renderBoard(data);
         }
@@ -209,47 +197,39 @@
                 card.className = 'task-card'; card.id = `task-${t.id}`; card.draggable = true;
                 card.ondragstart = (e) => e.dataTransfer.setData("text", card.id);
                 
-                const assignee = t.team_members ? t.team_members.name : 'Unassigned';
-
                 card.innerHTML = `
                     <div class="card-actions">
-                        <button class="action-btn" onclick="openEditModal(${t.id})" title="Edit">✏️</button>
-                        <button class="action-btn delete-btn" onclick="deleteTask(${t.id})" title="Delete">🗑️</button>
+                        <button class="action-btn" onclick="openEditModal(${t.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteTask(${t.id})">🗑️</button>
                     </div>
                     <span class="priority-tag priority-${t.priority.toLowerCase()}">${t.priority}</span>
                     <h3 class="task-title">${t.title}</h3>
                     <div class="task-desc">${marked.parse(t.description || '')}</div>
                     <div class="task-footer">
-                        <span class="assignee-info">👤 ${assignee}</span>
-                        <span style="color:var(--text-light)">📅 ${t.due_date || 'No Date'}</span>
+                        <span class="assignee-info">👤 ${t.team_members ? t.team_members.name : 'Unassigned'}</span>
+                        <span>📅 ${t.due_date || 'No Date'}</span>
                     </div>
                 `;
                 document.getElementById(`tasks-${t.status}`).appendChild(card);
             });
 
-            // Update Activity Board Counts
             document.getElementById('count-todo').innerText = counts['To-Do'];
             document.getElementById('count-progress').innerText = counts['In Progress'];
             document.getElementById('count-done').innerText = counts['Done'];
-
             document.getElementById('loading').style.display = 'none';
             document.getElementById('board').style.display = 'flex';
         }
 
-        // --- Drag and Drop ---
+        // --- Drag/Drop ---
         function allowDrop(e) { e.preventDefault(); }
-        async function drop(e, newStatus) {
+        async function drop(e, status) {
             e.preventDefault();
             const id = e.dataTransfer.getData("text").replace('task-', '');
-            // Optimistic UI move
-            const card = document.getElementById(`task-${id}`);
-            document.getElementById(`tasks-${newStatus}`).appendChild(card);
-            // Persistent DB update
-            await db.from('tasks').update({ status: newStatus }).eq('id', id);
-            fetchTasks(); // Recalculate metrics
+            await db.from('tasks').update({ status }).eq('id', id);
+            fetchTasks();
         }
 
-        // --- CRUD Actions ---
+        // --- CRUD ---
         function openModal() {
             document.getElementById('modalTitle').innerText = "New Task";
             document.getElementById('editTaskId').value = "";
@@ -280,41 +260,26 @@
                 assignee_id: document.getElementById('taskAssignee').value || null,
                 board_id: currentBoardId
             };
-
-            if (!data.title) { alert("Title is required"); return; }
-
-            if (id) { await db.from('tasks').update(data).eq('id', id); } 
-            else { await db.from('tasks').insert([{ ...data, status: 'To-Do' }]); }
-            
-            closeModal();
-            fetchTasks();
+            if (id) await db.from('tasks').update(data).eq('id', id);
+            else await db.from('tasks').insert([{ ...data, status: 'To-Do' }]);
+            closeModal(); fetchTasks();
         }
 
         async function deleteTask(id) {
-            if (confirm("Permanently delete this task?")) {
-                await db.from('tasks').delete().eq('id', id);
-                fetchTasks();
-            }
+            if (confirm("Delete task?")) { await db.from('tasks').delete().eq('id', id); fetchTasks(); }
         }
 
-        // --- Team Management ---
         async function loadTeamMembers() {
             const { data } = await db.from('team_members').select('*').order('name');
-            const select = document.getElementById('taskAssignee');
-            select.innerHTML = '<option value="">Unassigned</option>' + data.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            document.getElementById('teamListUI').innerHTML = data.map(m => `<div style="padding:5px 0; border-bottom:1px solid #eee;">👤 ${m.name}</div>`).join('');
+            document.getElementById('taskAssignee').innerHTML = '<option value="">Unassigned</option>' + data.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            document.getElementById('teamListUI').innerHTML = data.map(m => `<div>👤 ${m.name}</div>`).join('');
         }
 
         async function addTeamMember() {
             const name = document.getElementById('newMemberName').value.trim();
-            if (name) {
-                await db.from('team_members').insert([{ name }]);
-                document.getElementById('newMemberName').value = '';
-                loadTeamMembers();
-            }
+            if (name) { await db.from('team_members').insert([{ name }]); document.getElementById('newMemberName').value = ''; loadTeamMembers(); }
         }
 
-        // Modal Helpers
         function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
         function openTeamModal() { document.getElementById('teamModal').style.display = 'flex'; }
         function closeTeamModal() { document.getElementById('teamModal').style.display = 'none'; }
